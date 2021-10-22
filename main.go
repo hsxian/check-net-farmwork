@@ -13,9 +13,10 @@ import (
 )
 
 type FileEx struct {
-	FileName      string `mapstructure:"FileName" json:"FileName" ini:"FileName"`
-	RunningTip    string `mapstructure:"RunningTip" json:"RunningTip" ini:"RunningTip"`
-	IsWaitRunning bool   `mapstructure:"IsWaitRunning" json:"IsWaitRunning" ini:"IsWaitRunning"`
+	FileName      string   `mapstructure:"FileName" json:"FileName" ini:"FileName"`
+	Args          []string `mapstructure:"Args" json:"Args" ini:"Args"`
+	RunningTip    string   `mapstructure:"RunningTip" json:"RunningTip" ini:"RunningTip"`
+	IsWaitRunning bool     `mapstructure:"IsWaitRunning" json:"IsWaitRunning" ini:"IsWaitRunning"`
 	AbsPath       string
 	AbsDir        string
 }
@@ -55,6 +56,7 @@ func main() {
 			isQualified = true
 			fmt.Println(minVersionTip, "<", v+"(本机已安装)")
 		case a == b:
+			isQualified = true
 			fmt.Println(minVersionTip, "=", v+"(本机已安装)")
 		}
 	}
@@ -196,6 +198,7 @@ func RunExec(fileEx FileEx) {
 	if Exists(&fileEx) {
 		cmd := exec.Command(fileEx.AbsPath)
 		cmd.Dir = fileEx.AbsDir
+		cmd.Args = fileEx.Args
 		fmt.Println(fileEx.RunningTip)
 		if fileEx.IsWaitRunning {
 			cmd.Run()

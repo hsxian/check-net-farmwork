@@ -1,6 +1,6 @@
 {
     "MinVersion":"4.6.1",
-    "StartExexFiles":[{"FileName":"calc.exe","RunningTip":"计算器运行中...","IsWaitRunning":true}],
+    "StartExexFiles":[{"FileName":"check-net-framework.bat","RunningTip":"执行check-net-framework.bat","IsWaitRunning":true}],
     "DotNetFramworkFiles":[]
 
 }
