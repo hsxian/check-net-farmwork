@@ -9,6 +9,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/shirou/gopsutil/process"
+
 	registry "golang.org/x/sys/windows/registry"
 )
 
@@ -32,6 +34,7 @@ var (
 
 // reg query "HKLM\Software\Microsoft\NET Framework Setup\NDP" /s /v version | findstr /i version | sort /+26 /r
 func main() {
+	CheckExecInsatnce()
 	InitConfigFromJson()
 	path := "Software\\Microsoft\\NET Framework Setup\\NDP"
 	subkeys := ReadReadAllSubKeyNames(path)
@@ -71,7 +74,46 @@ func main() {
 		}
 	}
 }
+func GetCurretProcess() *process.Process {
+	cpid := os.Getpid()
+	ps, _ := process.Processes()
+	for i := 0; i < len(ps); i++ {
+		p := ps[i]
+		if cpid == int(p.Pid) {
+			return p
+		}
+	}
+	return nil
+}
+func CheckExecInsatnce() {
+	cp := GetCurretProcess()
+	if cp == nil {
+		os.Exit(0)
+	}
+	wd, _ := cp.Cwd()
+	name, _ := cp.Name()
+	ps, _ := process.Processes()
+	for i := 0; i < len(ps); i++ {
+		p := ps[i]
+		pname, _ := p.Name()
+		pwd, _ := p.Cwd()
+		if int(cp.Pid) == int(p.Pid) {
+			// fmt.Printf("output:%d, %s,%s\n", p.Pid, pname, pwd)
+			continue
+		}
 
+		if len(pwd) == 0 {
+			continue
+		}
+
+		if pwd == wd && pname == name {
+			fmt.Printf("该程序已经有实例正在运行，请按任意键退出")
+			b := make([]byte, 1)
+			os.Stdin.Read(b)
+			os.Exit(0)
+		}
+	}
+}
 func InitConfigFromJson() {
 	// 打开文件
 	file, _ := os.Open("config-check-runtime-environment.json")
